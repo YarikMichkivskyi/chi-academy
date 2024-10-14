@@ -3,12 +3,10 @@ const part1 = () => {
         let count = 0;
 
         return function (data) {
-            count++;
             return {
                 ...params,
-                // ...data,
                 data: data,
-                count: count - 1
+                count: count++
             };
         };
     }
@@ -30,9 +28,7 @@ const part2 = () => {
     obj.getData.call({name: 'John', age: 30});
 
     function createDataGetter(name, age) {
-        return function () {
-            obj.getData.call({name, age});
-        };
+        return  obj.getData.bind({name, age})
     }
 
     const getJohnData = createDataGetter('John', 30);
