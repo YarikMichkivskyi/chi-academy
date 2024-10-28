@@ -40,7 +40,7 @@ module.exports = ()=>{
             static: './dist',
             hot: true,
             open: true,
-            port: 8000,
+            port: 4000,
         },
     }
 };
