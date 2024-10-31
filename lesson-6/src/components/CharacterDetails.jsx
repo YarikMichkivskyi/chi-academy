@@ -1,19 +1,41 @@
-import React from 'react';
-import { Box, Typography, Avatar } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Box, Typography, CircularProgress, Avatar } from '@mui/material';
 
-const CharacterDetails = ({ character }) => {
-    if (!character) return <Box sx={{ width: '30%' }}>Select a character to see details.</Box>;
+const API_URL = 'https://rickandmortyapi.com/api/character';
+
+function HeroDetail({ id }) {
+    const [character, setCharacter] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchCharacter = async () => {
+            try {
+                const response = await fetch(`${API_URL}/${id}`);
+                const data = await response.json();
+                setCharacter(data);
+            } catch (error) {
+                console.error('Failed to fetch character:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCharacter();
+    }, [id]);
+
+    if (loading) return <CircularProgress />;
+    if (!character) return <Typography variant="h6">Character not found</Typography>;
 
     return (
-        <Box sx={{ width: '30%', ml: 2, textAlign: 'center' }}>
-            <Avatar src={character.image} alt={character.name} sx={{ width: 120, height: 120, margin: '20px auto' }} />
-            <Typography variant="h5">{character.name}</Typography>
-            <Typography>Status: {character.status}</Typography>
-            <Typography>Species: {character.species}</Typography>
-            <Typography>Gender: {character.gender}</Typography>
-            <Typography>Location: {character.location.name}</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', mt: 4, width: 250 }}>
+            <Avatar src={character.image} alt={character.name} sx={{ width: 150, height: 150, mb: 2 }} />
+            <Typography variant="h4">{character.name}</Typography>
+            <Typography variant="body1">Status: {character.status}</Typography>
+            <Typography variant="body1">Species: {character.species}</Typography>
+            <Typography variant="body1">Gender: {character.gender}</Typography>
+            <Typography variant="body1">Origin: {character.origin.name}</Typography>
         </Box>
     );
-};
+}
 
-export default CharacterDetails;
+export default HeroDetail;

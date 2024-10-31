@@ -5,7 +5,6 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Heroes from './pages/Heroes';
 import About from './pages/About';
-import HeroDetail from './pages/HeroDetail';
 import {lightTheme} from './themes/lightTheme';
 import {darkTheme} from './themes/darkTheme';
 
@@ -26,8 +25,7 @@ export default function App() {
                         <Box component="main" sx={{ flexGrow: 1, p: 3, ml: '250px' }}>
                             <Routes>
                                 <Route path="/" element={<Home />} />
-                                <Route path="/heroes" element={<Heroes />} />
-                                <Route path="/heroes/:id" element={<HeroDetail />} />
+                                <Route path="/heroes/:id?" element={<Heroes />} />
                                 <Route path="/about" element={<About />} />
                             </Routes>
                         </Box>
