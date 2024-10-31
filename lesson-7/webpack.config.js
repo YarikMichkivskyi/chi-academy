@@ -1,8 +1,8 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-module.exports = ()=>{
-    return{
+module.exports = () => {
+    return {
         entry: './src/index.tsx',
         output: {
             path: path.resolve(__dirname, 'dist'),
@@ -13,12 +13,12 @@ module.exports = ()=>{
         module: {
             rules: [
                 {
-                    test: /\.(js|jsx)$/,
+                    test: /\.(js|jsx|ts|tsx)$/,
                     exclude: /node_modules/,
                     use: {
                         loader: 'babel-loader',
                         options: {
-                            presets: ["@babel/preset-env", "@babel/preset-react"]
+                            presets: ["@babel/preset-env", "@babel/preset-react", "@babel/preset-typescript"]
                         }
                     },
                 },
@@ -29,7 +29,7 @@ module.exports = ()=>{
             ],
         },
         resolve: {
-            extensions: ['.js', '.jsx'],
+            extensions: ['.js', '.jsx', '.ts', '.tsx'],
         },
         plugins: [
             new HtmlWebpackPlugin({
@@ -40,7 +40,7 @@ module.exports = ()=>{
             static: './dist',
             hot: true,
             open: true,
-            port: 4000,
+            port: 4001,
         },
     }
 };

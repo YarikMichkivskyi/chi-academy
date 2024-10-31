@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = ()=>{
     return{
-        entry: './src/index.jsx',
+        entry: './src/index.tsx',
         output: {
             path: path.resolve(__dirname, 'dist'),
             filename: 'bundle.[contenthash].js',
