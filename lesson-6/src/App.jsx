@@ -7,6 +7,7 @@ import Heroes from './pages/Heroes';
 import About from './pages/About';
 import {lightTheme} from './themes/lightTheme';
 import {darkTheme} from './themes/darkTheme';
+import CharacterDetailsDrawer from "./components/CharacterDetailsDrawer";
 
 export default function App() {
     const [isDarkMode, setIsDarkMode] = useState(false);
@@ -25,7 +26,9 @@ export default function App() {
                         <Box component="main" sx={{ flexGrow: 1, p: 3, ml: '250px' }}>
                             <Routes>
                                 <Route path="/" element={<Home />} />
-                                <Route path="/heroes/:id?" element={<Heroes />} />
+                                <Route path="/heroes" element={<Heroes />}>
+                                    <Route path=":id" element={<CharacterDetailsDrawer />} />
+                                </Route>
                                 <Route path="/about" element={<About />} />
                             </Routes>
                         </Box>

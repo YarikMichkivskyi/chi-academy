@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { Box, Drawer, IconButton, Backdrop } from '@mui/material';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
-import CharacterDetails from "../components/CharacterDetails";
+import { Outlet } from 'react-router-dom';
 
 const API_URL = 'https://rickandmortyapi.com/api/character';
 
@@ -13,7 +13,6 @@ function Heroes() {
     const [totalCharacters, setTotalCharacters] = useState(0);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const { id } = useParams();
 
     useEffect(() => {
         fetchCharacters(page + 1);
@@ -41,16 +40,12 @@ function Heroes() {
         setPage(newPaginationModel.page);
     };
 
-    const closeDrawer = () => {
-        navigate('/heroes');
-    };
-
     return (
         <Box sx={{ height: 500, width: '100%', mt: 2, display: 'flex', position: 'relative' }}>
             <Backdrop
-                open={Boolean(id)}
+                open={Boolean(window.location.pathname.includes('/heroes/'))}
                 sx={{ zIndex: (theme) => theme.zIndex.drawer - 1, backdropFilter: 'blur(4px)' }}
-                onClick={closeDrawer}
+                onClick={() => navigate('/heroes')}
             />
             <DataGrid
                 rows={characters}
@@ -74,18 +69,7 @@ function Heroes() {
                 pageSizeOptions={[20]}
                 sx={{ zIndex: (theme) => theme.zIndex.drawer - 2 }}
             />
-            <Drawer
-                anchor="right"
-                open={Boolean(id)}
-                onClose={closeDrawer}
-                sx={{ width: 300, flexShrink: 0 }}
-                variant="persistent"
-            >
-                <IconButton onClick={closeDrawer} sx={{ alignSelf: 'flex-end', m: 1 }}>
-                    <CloseIcon />
-                </IconButton>
-                {id && <CharacterDetails id={id} />}
-            </Drawer>
+            <Outlet />
         </Box>
     );
 }
