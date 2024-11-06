@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { TextField, Button, Typography, Box, Link } from '@mui/material';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 import { useAppDispatch, useAppSelector } from "../hooks/hooks";
 import { userActions } from "../store/actions";
 import { useNavigate } from 'react-router-dom';
@@ -12,40 +14,39 @@ const LoginForm = () => {
         token: state.userData.token
     }));
 
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+    const formik = useFormik({
+        initialValues: {
+            username: '',
+            password: '',
+        },
+        validationSchema: Yup.object({
+            username: Yup.string().required('Username is required'),
+            password: Yup.string().required('Password is required'),
+        }),
+        onSubmit: (values) => {
+            dispatch(userActions.login(values));
+        },
+    });
 
-    useEffect(() => {
+    React.useEffect(() => {
         if (token) {
             nav('/home');
         }
     }, [token, nav]);
 
-    const handleSubmit = (event: React.FormEvent) => {
-        event.preventDefault();
-        dispatch(userActions.login({ username, password }));
-    };
-
     return (
-        <Box
-            sx={{
-                width: '100%',
-                maxWidth: 400,
-                mx: 'auto',
-                px: 3,
-                py: 4,
-                borderRadius: 2,
-                boxShadow: 3,
-                textAlign: 'center'
-            }}
-        >
+        <Box sx={{ width: '100%', maxWidth: 400, mx: 'auto', px: 3, py: 4, borderRadius: 2, boxShadow: 3, textAlign: 'center' }}>
             <Typography variant="h5" gutterBottom>Login</Typography>
             {error && <Typography color="error">{error}</Typography>}
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={formik.handleSubmit}>
                 <TextField
                     label="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    name="username"
+                    value={formik.values.username}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.username && Boolean(formik.errors.username)}
+                    helperText={formik.touched.username && formik.errors.username}
                     fullWidth
                     margin="normal"
                     required
@@ -53,8 +54,12 @@ const LoginForm = () => {
                 <TextField
                     type="password"
                     label="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    name="password"
+                    value={formik.values.password}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.password && Boolean(formik.errors.password)}
+                    helperText={formik.touched.password && formik.errors.password}
                     fullWidth
                     margin="normal"
                     required

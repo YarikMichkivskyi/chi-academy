@@ -1,53 +1,58 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { TextField, Button, Typography, Box, Link } from '@mui/material';
-import {useAppDispatch} from "../hooks/hooks";
-import {userActions} from "../store/actions";
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import { useAppDispatch } from "../hooks/hooks";
+import { userActions } from "../store/actions";
 
 const RegisterForm = () => {
-    const [name, setName] = useState('');
-    const [password, setPassword] = useState('');
     const dispatch = useAppDispatch();
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        dispatch(userActions.register({ username:name, password }));
-    };
+    const formik = useFormik({
+        initialValues: {
+            username: '',
+            password: '',
+        },
+        validationSchema: Yup.object({
+            username: Yup.string().min(4, 'Username must be at least 4 characters').required('Username is required'),
+            password: Yup.string().min(4, 'Password must be at least 4 characters').required('Password is required'),
+        }),
+        onSubmit: (values) => {
+            dispatch(userActions.register(values));
+        },
+    });
 
     return (
-        <Box
-            sx={{
-                width: '100%',
-                maxWidth: 400,
-                mx: 'auto',
-                px: 3,
-                py: 4,
-                borderRadius: 2,
-                boxShadow: 3,
-                textAlign: 'center'
-            }}
-            component="form"
-            onSubmit={handleSubmit}
-        >
+        <Box sx={{ width: '100%', maxWidth: 400, mx: 'auto', px: 3, py: 4, borderRadius: 2, boxShadow: 3, textAlign: 'center' }}>
             <Typography variant="h5" gutterBottom>Register</Typography>
-            {/*{error && <Typography color="error">{error}</Typography>}*/}
-            <TextField
-                label="Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                fullWidth
-                margin="normal"
-                required
-            />
-            <TextField
-                label="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                type="password"
-                fullWidth
-                margin="normal"
-                required
-            />
-            <Button type="submit" variant="contained" color="primary" fullWidth>Register</Button>
+            <form onSubmit={formik.handleSubmit}>
+                <TextField
+                    label="Username"
+                    name="username"
+                    value={formik.values.username}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.username && Boolean(formik.errors.username)}
+                    helperText={formik.touched.username && formik.errors.username}
+                    fullWidth
+                    margin="normal"
+                    required
+                />
+                <TextField
+                    label="Password"
+                    type="password"
+                    name="password"
+                    value={formik.values.password}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.password && Boolean(formik.errors.password)}
+                    helperText={formik.touched.password && formik.errors.password}
+                    fullWidth
+                    margin="normal"
+                    required
+                />
+                <Button type="submit" variant="contained" color="primary" fullWidth>Register</Button>
+            </form>
             <Box mt={2}>
                 <Link href="/login" variant="body2">Already have an account? Login</Link>
                 <br />

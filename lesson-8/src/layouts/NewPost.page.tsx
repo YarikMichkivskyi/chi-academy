@@ -1,68 +1,86 @@
-import React, { useState } from 'react';
-import {TextField, Button, Box, Typography} from '@mui/material';
-import { createExhibit } from '../api/actions/exhibit.api'
-import {useNavigate} from "react-router-dom";
+import React from 'react';
+import { TextField, Button, Box, Typography } from '@mui/material';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import { createExhibit } from '../api/actions/exhibit.api';
+import { useNavigate } from "react-router-dom";
 import PageFrame from "../components/PageFrame";
 
 const NewPost = () => {
     const navigate = useNavigate();
-    const [description, setDescription] = useState('');
-    const [image, setImage] = useState<File | null>(null);
-    const [error, setError] = useState<string | null>(null);
 
-    const handleDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setDescription(e.target.value);
-    };
-
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setImage(e.target.files[0]);
-        }
-    };
-
-    const handleSubmit = async () => {
-        if (!description || !image) {
-            setError('Please provide both an image and a description.');
-            return;
-        }
-
-        try {
-            await createExhibit({ description, image });
-            navigate('/home');
-        } catch (err) {
-            setError('Failed to create post. Please try again.');
-        }
-    };
-
+    const formik = useFormik({
+        initialValues: {
+            description: '',
+            image: null as File | null,
+        },
+        validationSchema: Yup.object({
+            description: Yup.string().required('Please provide a description.'),
+            image: Yup.mixed().required('Please upload an image.'),
+        }),
+        onSubmit: async (values, { setSubmitting, setErrors }) => {
+            try {
+                await createExhibit({ description: values.description, image: values.image as File });
+                navigate('/home');
+            } catch (err) {
+                setErrors({ description: 'Failed to create post. Please try again.' });
+            } finally {
+                setSubmitting(false);
+            }
+        },
+    });
 
     return (
         <PageFrame>
             <Typography variant="h4" gutterBottom>Create New Post</Typography>
 
-            {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
+            <form onSubmit={formik.handleSubmit}>
+                <TextField
+                    label="Description"
+                    multiline
+                    rows={4}
+                    fullWidth
+                    name="description"
+                    value={formik.values.description}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    error={formik.touched.description && Boolean(formik.errors.description)}
+                    helperText={formik.touched.description && formik.errors.description}
+                    sx={{ mb: 3 }}
+                />
+                <Button variant="contained" component="label" sx={{ mb: 3 }}>
+                    Upload Image
+                    <input
+                        type="file"
+                        hidden
+                        accept="image/*"
+                        onChange={(e) => {
+                            if (e.target.files && e.target.files[0]) {
+                                formik.setFieldValue("image", e.target.files[0]);
+                            }
+                        }}
+                    />
+                </Button>
+                <Box sx={{ mb: 2 }}>
+                    {formik.values.image && (
+                        <Typography variant="body2">Selected file: {(formik.values.image as File).name}</Typography>
+                    )}
+                    {formik.touched.image && formik.errors.image && (
+                        <Typography color="error" variant="body2">{formik.errors.image}</Typography>
+                    )}
+                </Box>
 
-            <TextField
-                label="Description"
-                multiline
-                rows={4}
-                fullWidth
-                value={description}
-                onChange={handleDescriptionChange}
-                sx={{ mb: 3 }}
-            />
-
-            <Button variant="contained" component="label" sx={{ mb: 3 }}>
-                Upload Image
-                <input type="file" hidden accept="image/*" onChange={handleImageChange} />
-            </Button>
-
-            <Box sx={{ mb: 2 }}>
-                {image && <Typography variant="body2">Selected file: {image.name}</Typography>}
-            </Box>
-
-            <Button variant="contained" sx={{width:200}}  color="primary" fullWidth onClick={handleSubmit}>
-                Submit Post
-            </Button>
+                <Button
+                    type="submit"
+                    variant="contained"
+                    sx={{ width: 200 }}
+                    color="primary"
+                    fullWidth
+                    disabled={formik.isSubmitting}
+                >
+                    Submit Post
+                </Button>
+            </form>
         </PageFrame>
     );
 };
