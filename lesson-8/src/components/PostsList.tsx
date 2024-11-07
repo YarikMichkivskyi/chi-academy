@@ -8,6 +8,10 @@ import userApi from "../api/actions/user.api";
 import {useAppSelector} from "../hooks/hooks";
 import {AxiosResponse} from "axios";
 import {AllExhibitResponse} from "../common/types/exhibit/allExhibitResponse.type";
+import { AllExhibit } from "../common/types/types";
+import {connectToSocket} from "../api/socket/socket";
+import {toast} from "react-toastify";
+import {Socket} from "socket.io-client";
 
 interface PostsListProps {
     fetchFunction: (page: number, limit: number) => Promise<AxiosResponse<MyExhibitResponse|AllExhibitResponse>>;
@@ -15,7 +19,7 @@ interface PostsListProps {
 
 export const PostsList: React.FC<PostsListProps> = ({ fetchFunction }) => {
     const token = useAppSelector(state => state.userData.token);
-    const [posts, setPosts] = useState<MyExhibit[]>([]);
+    const [posts, setPosts] = useState<MyExhibit[]|AllExhibit[]>([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [id, setId] = useState<number>(-1);
@@ -30,6 +34,15 @@ export const PostsList: React.FC<PostsListProps> = ({ fetchFunction }) => {
         }
     };
 
+    const handleSocketConnection = (socket:Socket) => {
+        socket.on('newPost', () => {
+            if (page === 1) {
+                fetchPosts();
+            }
+            toast("New post!");
+        });
+    };
+
     useEffect(() => {
         if (token) {
             userApi.getUserByToken().then((res) => {
@@ -40,10 +53,20 @@ export const PostsList: React.FC<PostsListProps> = ({ fetchFunction }) => {
         }
     }, [token]);
 
-
     useEffect(() => {
         fetchPosts();
     }, [page]);
+
+    useEffect(() => {
+        if (window.location.href.endsWith('/')){
+            const socket = connectToSocket();
+            handleSocketConnection(socket)
+
+            return () => {
+                socket.off('newPost');
+            };
+        }
+    }, []);
 
     return (
         <>

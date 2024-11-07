@@ -25,7 +25,7 @@ const register = createAsyncThunk<RegisterResponse, RegisterInput, AsyncThunkCon
         const data = await response.data;
 
         if (response.status>299) {
-            throw new Error(data.message);
+            throw new Error(response.data.message);
         }
 
         const resp: RegisterResponse = data;

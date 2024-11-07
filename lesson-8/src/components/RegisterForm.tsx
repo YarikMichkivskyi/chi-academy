@@ -4,9 +4,12 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useAppDispatch } from "../hooks/hooks";
 import { userActions } from "../store/actions";
+import { toast } from 'react-toastify';
+import {useNavigate} from "react-router-dom";
 
 const RegisterForm = () => {
     const dispatch = useAppDispatch();
+    const nav = useNavigate();
 
     const formik = useFormik({
         initialValues: {
@@ -17,8 +20,12 @@ const RegisterForm = () => {
             username: Yup.string().min(4, 'Username must be at least 4 characters').required('Username is required'),
             password: Yup.string().min(4, 'Password must be at least 4 characters').required('Password is required'),
         }),
-        onSubmit: (values) => {
-            dispatch(userActions.register(values));
+        onSubmit: async (values) => {
+            try {
+                await dispatch(userActions.register(values)).unwrap();
+                toast.success("Registered successfully!");
+                nav('/login');
+            } catch (err) {}
         },
     });
 

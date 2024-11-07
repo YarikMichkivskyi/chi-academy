@@ -31,7 +31,6 @@ const CommentList: React.FC<{ exhibitId: number }> = ({exhibitId}) => {
     }, [exhibitId]);
 
     useEffect(() => {
-        console.log("token " + token)
         if (token) {
             userApi.getUserByToken().then((res) => {
                 setId(res.data.id);

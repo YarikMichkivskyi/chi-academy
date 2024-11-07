@@ -1,7 +1,8 @@
 import { createSlice, PayloadAction} from '@reduxjs/toolkit';
 import { login, register } from './actions';
+import {toast} from "react-toastify";
 
-//По-хорошему тоже вынести, но пока забил
+//Можно тоже вынести, но не думаю что нужно
 interface UserState {
     token: string | null;
     isAuthenticated: boolean;
@@ -41,10 +42,12 @@ const {reducer, actions, name} = createSlice({
                 state.token = action.payload.access_token;
                 state.isAuthenticated = true;
                 localStorage.setItem('token', state.token);
+                toast.success(`Welcome, ${action.payload.userName}!`);
             })
             .addCase(login.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload as string;
+                state.error = action.error.message as string;
+                toast.error(action.error.message as string);
             })
             .addCase(register.pending, (state) => {
                 state.loading = true;
@@ -52,10 +55,12 @@ const {reducer, actions, name} = createSlice({
             })
             .addCase(register.fulfilled, (state) => {
                 state.loading = false;
+                toast.success(`Registered successfully!`);
             })
             .addCase(register.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload as string;
+                state.error = action.error.message as string;
+                toast.error(action.error.message as string);
             });
     },
 });

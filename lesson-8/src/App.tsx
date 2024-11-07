@@ -9,6 +9,8 @@ import HomePage from "./layouts/Home.page";
 import {Box, CssBaseline} from "@mui/material";
 import {useAppDispatch} from "./hooks/hooks";
 import {userActions} from "./store/actions";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function App() {
     const dispatch = useAppDispatch();
@@ -38,6 +40,7 @@ export default function App() {
                     </Routes>
                 </Box>
             }
+            <ToastContainer />
         </>
     );
 };
