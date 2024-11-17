@@ -1,21 +1,66 @@
-import { createSlice, PayloadAction} from '@reduxjs/toolkit';
-import { login, register } from './actions';
+import {createSlice} from '@reduxjs/toolkit';
+import {login, register} from './actions';
 import {toast} from "react-toastify";
+import {setToken} from "../../api/axiosInstance";
+import userApi from "../../api/actions/user.api";
 
-//Можно тоже вынести, но не думаю что нужно
 interface UserState {
     token: string | null;
-    isAuthenticated: boolean;
+    username: string | null;
+    id: number | null;
     loading: boolean;
     error: string | null;
 }
 
-const initialState: UserState = {
-    token: null,
-    isAuthenticated: false,
-    loading: false,
-    error: null,
+const loadToken = () => {
+    const token = localStorage.getItem('token');
+    console.log(token)
+    setToken(String(token));
+    return token;
+}
+
+const removeToken = () => {
+    localStorage.removeItem('token');
+    setToken('');
+}
+
+const saveToken = (token: string) => {
+    setToken(token);
+    localStorage.setItem('token', token);
+}
+
+const getInitialState = async () => {
+    const token = loadToken();
+    console.log('token ', token);
+    if (token) {
+        console.log(1)
+        try {
+            const res = await userApi.getUserByToken().then((response) => {
+                console.log(2)
+                return{
+                    token,
+                    username: response.data.username,
+                    id: response.data.id,
+                    loading: false,
+                    error: null,
+                }
+            })
+        } catch (error) {
+            removeToken()
+        }
+    }
+    console.log(3)
+    return {
+        token:null,
+        username:null,
+        id:null,
+        loading: false,
+        error: null,
+    }
 };
+
+// новый проект перенести на есм
+const initialState: UserState = await getInitialState();
 
 const {reducer, actions, name} = createSlice({
     name: 'user',
@@ -23,13 +68,13 @@ const {reducer, actions, name} = createSlice({
     reducers: {
         logout: (state) => {
             state.token = null;
-            state.isAuthenticated = false;
-            localStorage.removeItem('token');
+            state.username = null;
+            state.id = null;
+            removeToken();
         },
-        setToken: (state, action:PayloadAction<string>) => {
-            state.token = action.payload;
-            state.isAuthenticated = true;
-        },
+        // setToken: (state, action: PayloadAction<string>) => {
+        //     state.token = action.payload;
+        // },
     },
     extraReducers: (builder) => {
         builder
@@ -40,8 +85,9 @@ const {reducer, actions, name} = createSlice({
             .addCase(login.fulfilled, (state, action) => {
                 state.loading = false;
                 state.token = action.payload.access_token;
-                state.isAuthenticated = true;
-                localStorage.setItem('token', state.token);
+                state.id = action.payload.userId;
+                state.username = action.payload.userName;
+                saveToken(action.payload.access_token);
                 toast.success(`Welcome, ${action.payload.userName}!`);
             })
             .addCase(login.rejected, (state, action) => {

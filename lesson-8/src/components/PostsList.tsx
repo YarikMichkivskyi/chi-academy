@@ -8,22 +8,28 @@ import userApi from "../api/actions/user.api";
 import {useAppSelector} from "../hooks/hooks";
 import {AxiosResponse} from "axios";
 import {AllExhibitResponse} from "../common/types/exhibit/allExhibitResponse.type";
-import { AllExhibit } from "../common/types/types";
+import { AllExhibit, RootState } from "../common/types/types";
 import {connectToSocket} from "../api/socket/socket";
 import {toast} from "react-toastify";
 import {Socket} from "socket.io-client";
+import {useLocation} from "react-router-dom";
+import {useSelector} from "react-redux";
 
 interface PostsListProps {
     fetchFunction: (page: number, limit: number) => Promise<AxiosResponse<MyExhibitResponse|AllExhibitResponse>>;
 }
 
 export const PostsList: React.FC<PostsListProps> = ({ fetchFunction }) => {
-    const token = useAppSelector(state => state.userData.token);
+    //solo useState
     const [posts, setPosts] = useState<MyExhibit[]|AllExhibit[]>([]);
+    //search
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const [id, setId] = useState<number>(-1);
+    const id:number|null = useSelector((state:RootState) => state.userData.id);
 
+    const location = useLocation();
+
+    //useRequest
     const fetchPosts = async () => {
         try {
             const data: MyExhibitResponse = (await fetchFunction(page, 10)).data;
@@ -34,6 +40,7 @@ export const PostsList: React.FC<PostsListProps> = ({ fetchFunction }) => {
         }
     };
 
+    //hook
     const handleSocketConnection = (socket:Socket) => {
         socket.on('newPost', () => {
             if (page === 1) {
@@ -43,22 +50,13 @@ export const PostsList: React.FC<PostsListProps> = ({ fetchFunction }) => {
         });
     };
 
-    useEffect(() => {
-        if (token) {
-            userApi.getUserByToken().then((res) => {
-                setId(res.data.id);
-            });
-        } else {
-            setId(-1);
-        }
-    }, [token]);
-
+    //userequest naverh
     useEffect(() => {
         fetchPosts();
     }, [page]);
 
     useEffect(() => {
-        if (window.location.href.endsWith('/')){
+        if (location.pathname==='/'){
             const socket = connectToSocket();
             handleSocketConnection(socket)
 

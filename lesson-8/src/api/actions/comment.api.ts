@@ -1,4 +1,4 @@
-import axiosInstance from "../axiosInstance";
+import {axiosInstance} from "../axiosInstance";
 
 const getComments = async (exhibitId: string) => {
     return await axiosInstance.get(`/api/exhibits/${exhibitId}/comments`);

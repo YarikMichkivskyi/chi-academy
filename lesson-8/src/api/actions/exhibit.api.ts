@@ -1,4 +1,4 @@
-import axiosInstance from '../axiosInstance';
+import {axiosInstance} from '../axiosInstance';
 
 const getAllExhibits = async (page:number, limit:number) => {
     return await axiosInstance.get('/api/exhibits?page='+page+'&limit='+limit);

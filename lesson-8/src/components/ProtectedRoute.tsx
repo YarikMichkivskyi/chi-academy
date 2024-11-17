@@ -1,9 +1,7 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import {useAppSelector} from "../hooks/hooks";
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-    const isAllowed = useAppSelector(state => state.userData.isAuthenticated);
+const ProtectedRoute = ({ children, isAllowed }: { children: React.ReactNode, isAllowed:boolean }) => {
     return isAllowed ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
