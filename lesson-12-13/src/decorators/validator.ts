@@ -8,8 +8,6 @@ export function ValidateArgs(test: string) {
 
         descriptor.value = function (...args: any[]) {
 
-            //Ежели использовать ту же схему, что в лекции, то
-            //body находить только так, ну или аргумент объектом передавать
             const body = args.find((arg) => typeof arg === "object" && arg !== null && !Array.isArray(arg));
 
             if (!body || typeof body !== "object") {
